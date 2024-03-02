@@ -2,7 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Button, Alert, FlatList, TextInput, StyleSheet, Keyboard } from 'react-native'
 import useActionCable from '../../hooks/useActionCable';
 import useChannel from '../../hooks/useChannel';
-import DeviceInfo from 'react-native-device-info';
+
+interface Props {
+    navigation: any
+    route: any
+}
 
 const BaseURL = "http://10.0.2.2:3000";
 const WSBaseURL = "ws://10.0.2.2:3000";
@@ -12,7 +16,7 @@ const endpoints = {
     messages: "/messages/"
 }
 
-const Home = (props: any) => {
+const Home = (props: Props) => {
     
     const { actionCable } = useActionCable( WSBaseURL + endpoints.cable)
     const { subscribe, unsubscribe, send } = useChannel(actionCable)
@@ -38,7 +42,7 @@ const Home = (props: any) => {
 
     useEffect(() => {
         fetchMessages()
-        subscribe({ channel: 'MessagesChannel' }, {
+        subscribe({ channel: 'ChatroomChannel' }, {
             received: (x) => {
                 console.log(x, "RECEIVED DATA")
                 const receivedData = x;
@@ -85,7 +89,7 @@ const Home = (props: any) => {
 
     const deleteMessage = async (id: number) => {
         try {
-            await fetch(`http://10.0.2.2:3000/messages/${id}`, {
+            await fetch(`${BaseURL}${id}`, {
                 method: 'DELETE',
                 headers: {
                     "Content-Type": "application/json"
@@ -101,7 +105,7 @@ const Home = (props: any) => {
                 return
             }
             const body = message;
-            await fetch("http://10.0.2.2:3000/messages", {
+            await fetch(BaseURL, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

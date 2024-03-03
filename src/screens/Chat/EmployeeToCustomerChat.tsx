@@ -32,6 +32,7 @@ const EmployeeToCustomerChat = ({ navigation, route }: any) => {
         }
         catch (err) {
             if (err instanceof Error) {
+                console.log("Error Bro", err)
                 Alert.alert(err.name, err.message)
             }
             else {
@@ -80,7 +81,7 @@ const EmployeeToCustomerChat = ({ navigation, route }: any) => {
 
     useEffect(() => {
         fetchMessagesByChatId(route.params.item.id)
-        channelSubscribe("ChatroomChannel", { chat_room_id: route.params.item.id })
+        channelSubscribe("MessagesChannel", { chat_room_id: route.params.item.id })
         return () => {
             unsubscribe()
         }
@@ -134,6 +135,7 @@ const EmployeeToCustomerChat = ({ navigation, route }: any) => {
         }
         catch (err) {
             if (err instanceof Error) {
+                console.log("Error Bro", err)
                 Alert.alert(err.name, err.message)
             }
             else {

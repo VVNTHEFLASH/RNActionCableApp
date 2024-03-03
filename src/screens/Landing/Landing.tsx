@@ -1,5 +1,5 @@
 import { Button, StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import React, { } from 'react'
 
 const Landing = ({ navigation }: any) => {
 
@@ -10,6 +10,8 @@ const Landing = ({ navigation }: any) => {
     const onPressSignUpByType = (type: "CUSTOMER" | "EMPLOYEE") => {
         navigation.navigate("Signup", { type })
     }
+
+
     return (
         <View style={{
             flex: 1,

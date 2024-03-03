@@ -1,8 +1,36 @@
-import { Button, StyleSheet, Text, TextInput, View } from 'react-native'
-import React from 'react'
+import { ActivityIndicator, Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native'
+import React, { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 const Login = ({ navigation, route }: any) => {
-    const { signInByType } = useAuth()
+
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const { signInByType, loading, token } = useAuth();
+
+    const onPressLoginButton = async () => {
+        try {
+            const userData = {
+                email,
+                password,
+                type: route.params.type
+            }
+            console.log(userData)
+            await signInByType(userData, { navigation, route })
+        }
+        catch (err) {
+            if(err instanceof Error) {
+                Alert.alert(err.name, err.message)
+            }
+            else {
+                console.log("Something went wrong", JSON.stringify(err))
+            }
+        }
+        finally {
+            setEmail("");
+            setPassword("");
+        }
+
+    }
     return (
         <View>
             <Text style={{ textAlign: 'center', fontWeight: "800", fontSize: 20 }}>Login</Text>
@@ -10,16 +38,22 @@ const Login = ({ navigation, route }: any) => {
             <View>
                 <View>
                     <Text>Email</Text>
-                    <TextInput placeholder='Enter email' />
+                    <TextInput placeholder='Enter email' value={email} onChangeText={(text) => {
+                        setEmail(text)
+                    }}/>
                 </View>
                 <View>
                     <Text>Password</Text>
-                    <TextInput placeholder='Enter password' />
+                    <TextInput placeholder='Enter password' value={password} onChangeText={(text) => {
+                        setPassword(text)
+                    }} />
                 </View>
                 <View>
-                    <Button title='Login' onPress={() => {
-                        signInByType(route.params.type)
-                    }} />
+                    <Button title='Login' onPress={onPressLoginButton} />
+                </View>
+                { loading && <ActivityIndicator />}
+                <View>
+                    <Text>{token}</Text>
                 </View>
             </View>
         </View>

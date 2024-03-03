@@ -2,75 +2,53 @@ import { View, Text } from 'react-native'
 import React, { useCallback, useEffect, useState } from 'react'
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createSwitchNavigator } from '@react-navigation/compat';
 import Home from './src/screens/Home/Home';
 import Signup from './src/screens/Signup/Signup';
 import Splash from './src/screens/Splash/Splash';
 import Login from './src/screens/Login/Login';
-
-import { StorageKeys, AsyncStorageHelper } from "./src/helper/utilities";
 import Landing from './src/screens/Landing/Landing';
 import { AuthProvider } from './src/context/AuthContext';
+import { AsyncStorageHelper, StorageKeys } from "./src/helper/utilities";
+import CustomerHome from './src/screens/Home/CustomerHome';
+import EmployeeHome from './src/screens/Home/EmployeeHome';
+
 const Stack = createNativeStackNavigator();
+
 export default function App() {
 
-  const [type, setType] = useState<"EMPLOYEE" | "CUSTOMER" | null>(null)
-  const getSessionDetails = async () => {
-    const userType = await AsyncStorageHelper.getValue(StorageKeys.loggedInUserType)
-    if (userType) {
+  const EmployeeRoute = () => (
+    <Stack.Navigator>
+      <Stack.Screen name="Home" component={EmployeeHome} />
+    </Stack.Navigator>
+  );
 
-      if (userType === 'EMPLOYEE') {
-        setType("EMPLOYEE")
-      }
-      else if (userType === "CUSTOMER") {
-        setType("CUSTOMER")
-      }
-      else {
-        setType(null)
-      }
-    }
-  }
-  useEffect(() => {
-    getSessionDetails()
-    return () => {
-      // return unsubscribe functions
-    }
-  }, [])
+  const CustomerRoute = () => (
+    <Stack.Navigator>
+      <Stack.Screen name="Home" component={CustomerHome} />
+    </Stack.Navigator>
+  );
 
-  const EmployeeRoute = () => {
-    return (
-      <Stack.Navigator>
-        <Stack.Screen name="Home" component={Home} />
-      </Stack.Navigator>
-    )
-  }
+  const DefaultRoute = () => (
+    <Stack.Navigator>
+      <Stack.Screen name="Splash" component={Splash} />
+      <Stack.Screen name="Landing" component={Landing} />
+      <Stack.Screen name="Login" component={Login} />
+      <Stack.Screen name="Signup" component={Signup} />
+    </Stack.Navigator>
+  );
 
-  const CustomerRoute = () => {
-    return (
-      <Stack.Navigator>
-        <Stack.Screen name="Home" component={Home} />
-      </Stack.Navigator>
-    )
-  }
-
-  const DefaultRoute = () => {
-    return (
-      <Stack.Navigator>
-        <Stack.Screen name="Splash" component={Splash} options={{
-          
-        }} />
-        <Stack.Screen name="Landing" component={Landing} />
-        <Stack.Screen name="Login" component={Login} />
-        <Stack.Screen name="Signup" component={Signup} />
-      </Stack.Navigator>
-
-    )
-  }
+  const SwitchRoutes = createSwitchNavigator({
+    DefaultRoute: DefaultRoute,
+    CustomerRoute,
+    EmployeeRoute
+  });
 
   return (
     <AuthProvider>
       <NavigationContainer>
-        {type === "CUSTOMER" ? CustomerRoute() : type === "EMPLOYEE" ? EmployeeRoute() : DefaultRoute()}
+        <SwitchRoutes />
       </NavigationContainer>
     </AuthProvider>
-  )
+  );
 }

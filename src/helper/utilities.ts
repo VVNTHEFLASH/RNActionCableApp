@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-type UserType = "USER_TYPE"
+type UserType = "CUSTOMER" | "EMPLOYEE" | "USER_TYPE"
 interface storageKeysProps { 
     [key: string]: any
     loggedInUserType: UserType

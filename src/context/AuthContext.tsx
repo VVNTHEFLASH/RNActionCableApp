@@ -3,12 +3,15 @@
 import React, { createContext, useState, useContext } from 'react';
 
 interface User {
-  username: string;
+  email: string
+  name: string
+  password: string
+  type: "EMPLOYEE" | "CUSTOMER"
 }
 
 interface AuthContextType {
   user: User | null;
-  signIn: (userData: User) => void;
+  signInByType: (userData: User) => void;
   signOut: () => void;
 }
 
@@ -25,7 +28,7 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<any> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
 
-  const signIn = (userData: User) => {
+  const signInByType = (userData: User) => {
     // Logic for signing in, like API calls or local storage manipulation
     setUser(userData);
   };
@@ -36,7 +39,7 @@ export const AuthProvider: React.FC<any> = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, signInByType, signOut }}>
       {children}
     </AuthContext.Provider>
   );

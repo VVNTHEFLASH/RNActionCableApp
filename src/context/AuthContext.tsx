@@ -13,17 +13,20 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
-  signInByType: (userData: User, props: { navigation: any, route: any}) => Promise<void>;
+  signInByType: (userData: User, props: { navigation: any, route: any }) => Promise<void>;
   signOut: () => void;
   loading: boolean
   token: string | null
   loggedInUserType: "EMPLOYEE" | "CUSTOMER" | "USER"
   BaseURL: string;
+  WSBaseURL: string
+
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const BaseURL = "http://10.0.2.2:3000";
+const WSBaseURL = "ws://10.0.2.2:3000";
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -38,7 +41,7 @@ export const AuthProvider: React.FC<any> = ({ children }) => {
   const [loading, setLoading] = useState(false)
   const [token, setToken] = useState<string | null>(null);
   const [loggedInUserType, setLoggedInUserType] = useState<"EMPLOYEE" | "CUSTOMER" | "USER">("USER")
-  const signInByType = async (userData: User, props: { navigation: any, route: any}) => {
+  const signInByType = async (userData: User, props: { navigation: any, route: any }) => {
     // Logic for signing in, like API calls or local storage manipulation
     try {
       setLoading(true)
@@ -56,15 +59,15 @@ export const AuthProvider: React.FC<any> = ({ children }) => {
 
       const responseJson = await response.json();
 
-      if(responseJson && responseJson.token) {
+      if (responseJson && responseJson.token) {
         setToken(responseJson.token)
         await AsyncStorageHelper.setValue(StorageKeys.loggedInUserType, userData.type)
-        if(userData.type === "CUSTOMER") {
+        if (userData.type === "CUSTOMER") {
           setLoggedInUserType("CUSTOMER")
           await AsyncStorageHelper.setValue(StorageKeys.customerToken, responseJson.token)
           props.navigation.navigate("CustomerRoute")
         }
-        else if(userData.type === "EMPLOYEE") {
+        else if (userData.type === "EMPLOYEE") {
           setLoggedInUserType("EMPLOYEE")
           await AsyncStorageHelper.setValue(StorageKeys.employeeToken, responseJson.token)
           props.navigation.navigate("EmployeeRoute")
@@ -81,7 +84,7 @@ export const AuthProvider: React.FC<any> = ({ children }) => {
 
     }
     catch (err) {
-      if(err instanceof Error) {
+      if (err instanceof Error) {
         Alert.alert(err.name, err.message)
       }
       else {
@@ -99,7 +102,12 @@ export const AuthProvider: React.FC<any> = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, signInByType, signOut, loading, token, loggedInUserType, BaseURL }}>
+    <AuthContext.Provider value={{
+      user,
+      signInByType, signOut,
+      loading, token, loggedInUserType,
+      BaseURL, WSBaseURL
+    }}>
       {children}
     </AuthContext.Provider>
   );

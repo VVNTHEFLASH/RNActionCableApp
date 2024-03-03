@@ -1,6 +1,6 @@
 export interface ChatRoomType {
     "id": number
-    "name":  string // "employee_2_customer_2",
+    "name": string // "employee_2_customer_2",
     "employee_id": number
     "customer_id": number
     "created_at": string
@@ -8,3 +8,14 @@ export interface ChatRoomType {
 }
 
 export type ChatRoomsType = ChatRoomType[]
+
+export interface ChatMessageType {
+    "id": number
+    "body": string
+    "employee_id": number
+    "customer_id": number
+    "chat_room_id": number
+    "created_at": symbol
+    "updated_at": symbol
+    "sender_type": null | 'customer' | 'employee'
+}

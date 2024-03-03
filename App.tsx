@@ -12,6 +12,8 @@ import { AuthProvider } from './src/context/AuthContext';
 import { AsyncStorageHelper, StorageKeys } from "./src/helper/utilities";
 import CustomerHome from './src/screens/Home/CustomerHome';
 import EmployeeHome from './src/screens/Home/EmployeeHome';
+import EmployeeToCustomerChat from './src/screens/Chat/EmployeeToCustomerChat';
+import CustomerToEmployeeChat from './src/screens/Chat/CustomerToEmployeeChat';
 
 const Stack = createNativeStackNavigator();
 
@@ -20,12 +22,14 @@ export default function App() {
   const EmployeeRoute = () => (
     <Stack.Navigator>
       <Stack.Screen name="Home" component={EmployeeHome} />
+      <Stack.Screen name="EmployeeToCustomerChat" component={EmployeeToCustomerChat} />
     </Stack.Navigator>
   );
 
   const CustomerRoute = () => (
     <Stack.Navigator>
       <Stack.Screen name="Home" component={CustomerHome} />
+      <Stack.Screen name="CustomerToEmployeeChat" component={CustomerToEmployeeChat} />
     </Stack.Navigator>
   );
 

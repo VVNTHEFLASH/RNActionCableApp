@@ -5,15 +5,14 @@ import { useAuth } from '../../context/AuthContext'
 import AsyncStorageHelper, { StorageKeys } from '../../helper/utilities';
 import { DecodeResponse, decode } from "react-native-pure-jwt";
 
-const CustomerHome = () => {
+const CustomerHome = ({ navigation, route }: any) => {
     const { BaseURL } = useAuth()
     const [data, setData] = useState<ChatRoomsType>([])
     const [loading, setLoading] = useState(false)
     const renderChatRoomListItems = (item: ChatRoomType) => {
         return (
             <TouchableOpacity style={styles.button} onPress={() => {
-                console.log(item.id);
-                
+                navigation.navigate("CustomerToEmployeeChat", { item })
             }}>
                 <Text style={styles.text}>{item.id} {item.name}</Text>
             </TouchableOpacity>

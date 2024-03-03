@@ -18,6 +18,7 @@ interface AuthContextType {
   loading: boolean
   token: string | null
   loggedInUserType: "EMPLOYEE" | "CUSTOMER" | "USER"
+  BaseURL: string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -98,7 +99,7 @@ export const AuthProvider: React.FC<any> = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, signInByType, signOut, loading, token, loggedInUserType }}>
+    <AuthContext.Provider value={{ user, signInByType, signOut, loading, token, loggedInUserType, BaseURL }}>
       {children}
     </AuthContext.Provider>
   );

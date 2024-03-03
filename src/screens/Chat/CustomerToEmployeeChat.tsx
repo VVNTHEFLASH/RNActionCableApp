@@ -37,11 +37,14 @@ const CustomerToEmployeeChat = ({ navigation, route }: any) => {
         }
         finally {
             setLoading(false)
+            setTimeout(() => {
+                flatListRef.current?.scrollToEnd({ animated: true })
+            }, 100)
         }
     }
 
-    const channelSubscribe = (channel_name: string) => {
-        subscribe({ channel: channel_name }, {
+    const channelSubscribe = (channel_name: string, params: any = {}) => {
+        subscribe({ channel: channel_name, ...params }, {
             received: (x) => {
                 console.log(x, "RECEIVED DATA")
                 const receivedData = x;
@@ -64,7 +67,6 @@ const CustomerToEmployeeChat = ({ navigation, route }: any) => {
             },
             connected: function (): void {
                 console.log("connected")
-                flatListRef.current?.scrollToEnd({ animated: true })
             },
             disconnected: function (): void {
                 console.log("disconnected")
@@ -73,7 +75,7 @@ const CustomerToEmployeeChat = ({ navigation, route }: any) => {
     }
     useEffect(() => {
         fetchMessagesByChatId(route.params.item.id)
-        channelSubscribe("ChatroomChannel")
+        channelSubscribe("ChatroomChannel", { chat_room_id: route.params.item.id })
         return () => {
             unsubscribe()
         }
@@ -149,7 +151,8 @@ const CustomerToEmployeeChat = ({ navigation, route }: any) => {
             <View style={{ flex: 0.8 }}>
                 <FlatList ref={flatListRef} data={messages} renderItem={({ item }) => renderMessages(item)}
                 keyExtractor={(item) => item.id.toString()} 
-                ListEmptyComponent={loading ? <ActivityIndicator /> : <Text style={{ textAlign: 'center'}}>messages not found</Text>} />
+                ListEmptyComponent={loading ? <ActivityIndicator /> : <Text style={{ textAlign: 'center'}}>messages not found</Text>}
+                 />
             </View>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                 <TextInput placeholder='Enter message...' style={{ margin: 5 }} 

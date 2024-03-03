@@ -40,11 +40,14 @@ const EmployeeToCustomerChat = ({ navigation, route }: any) => {
         }
         finally {
             setLoading(false)
+            setTimeout(() => {
+                flatListRef.current?.scrollToEnd({ animated: true })
+            }, 100)
         }
     }
 
-    const channelSubscribe = (channel_name: string) => {
-        subscribe({ channel: channel_name }, {
+    const channelSubscribe = (channel_name: string, params: any = {}) => {
+        subscribe({ channel: channel_name, ...params }, {
             received: (x) => {
                 console.log(x, "RECEIVED DATA")
                 const receivedData = x;
@@ -59,7 +62,7 @@ const EmployeeToCustomerChat = ({ navigation, route }: any) => {
                     flatListRef.current?.scrollToEnd({ animated: true })
                 }
                 else {
-                    console.log("swr", receivedData)
+                    console.log("Unhandled", receivedData)
                 }
             },
             initialized: function (): void {
@@ -77,7 +80,7 @@ const EmployeeToCustomerChat = ({ navigation, route }: any) => {
 
     useEffect(() => {
         fetchMessagesByChatId(route.params.item.id)
-        channelSubscribe("ChatroomChannel")
+        channelSubscribe("ChatroomChannel", { chat_room_id: route.params.item.id })
         return () => {
             unsubscribe()
         }

@@ -14,7 +14,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   signInByType: (userData: User, props: { navigation: any, route: any }) => Promise<void>;
-  signOut: () => void;
+  signOut: (props: any) => void;
   loading: boolean
   token: string | null
   loggedInUserType: "EMPLOYEE" | "CUSTOMER" | "USER"
@@ -96,9 +96,10 @@ export const AuthProvider: React.FC<any> = ({ children }) => {
     }
   };
 
-  const signOut = () => {
+  const signOut = async (props: any) => {
     // Logic for signing out, like clearing local storage
-    setUser(null);
+    await AsyncStorageHelper.clearAll();
+    props.navigation.navigate("DefaultRoute")
   };
 
   return (

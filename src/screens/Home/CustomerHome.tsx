@@ -6,7 +6,7 @@ import AsyncStorageHelper, { StorageKeys } from '../../helper/utilities';
 import { DecodeResponse, decode } from "react-native-pure-jwt";
 
 const CustomerHome = ({ navigation, route }: any) => {
-    const { BaseURL } = useAuth()
+    const { BaseURL, signOut } = useAuth()
     const [data, setData] = useState<ChatRoomsType>([])
     const [loading, setLoading] = useState(false)
     const renderChatRoomListItems = (item: ChatRoomType) => {
@@ -25,18 +25,18 @@ const CustomerHome = ({ navigation, route }: any) => {
             const token = await AsyncStorageHelper.getValue(StorageKeys.customerToken);
             const decodedToken: DecodeResponse | any = await decode(token, "HS256", { skipValidation: true })
             console.log(decodedToken)
-            const customer_id  = decodedToken.payload.customer_id;
+            const customer_id = decodedToken.payload.customer_id;
             const response = await fetch(`${BaseURL}/employees/${customer_id}/chat_rooms`);
             const responseJson = await response.json();
 
-            if(responseJson) {
+            if (responseJson) {
                 setData(responseJson)
             }
             else {
                 Alert.alert("Something went wrong", JSON.stringify(responseJson))
             }
         } catch (error) {
-            if(error instanceof Error) {
+            if (error instanceof Error) {
                 Alert.alert(error.name, error.message)
             }
         }
@@ -53,19 +53,32 @@ const CustomerHome = ({ navigation, route }: any) => {
         <View style={styles.container}>
             <View style={{
                 flex: 0.1,
+                flexDirection: 'row',
+                justifyContent: 'space-around',
+                alignItems: 'center'
             }}>
-                <Text style={styles.text}>Who logged in</Text>
-                <Text style={styles.text}>Customer</Text>
+                <View>
+                    <Text style={styles.text}>Who logged in</Text>
+                    <Text style={styles.text}>Customer</Text>
+                </View>
+                <TouchableOpacity style={{
+                    backgroundColor: "#f06a1d",
+                    width: 150,
+                    padding: 5,
+                    borderRadius: 6
+                }} onPress={() => signOut({ navigation })}>
+                    <Text style={styles.text}>Logout</Text>
+                </TouchableOpacity>
             </View>
             <View style={{
                 flex: 0.9,
             }}>
-                <Text style={[styles.text, { }]}>Chat Rooms</Text>
-                <FlatList data={data} 
-                renderItem={({ item }) => renderChatRoomListItems(item)}
-                keyExtractor={(item) => item.id.toString()}
-                ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
-                ListEmptyComponent={loading ? <ActivityIndicator /> : <Text>Chat room not found</Text>}/>
+                <Text style={[styles.text, {}]}>Chat Rooms</Text>
+                <FlatList data={data}
+                    renderItem={({ item }) => renderChatRoomListItems(item)}
+                    keyExtractor={(item) => item.id.toString()}
+                    ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+                    ListEmptyComponent={loading ? <ActivityIndicator /> : <Text>Chat room not found</Text>} />
             </View>
         </View>
     )
@@ -88,5 +101,5 @@ const styles = StyleSheet.create({
         backgroundColor: "#581306",
         elevation: 4
     }
-    
+
 })

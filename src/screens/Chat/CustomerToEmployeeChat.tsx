@@ -1,5 +1,5 @@
-import { ActivityIndicator, Alert, FlatList, Keyboard, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import { ActivityIndicator, Alert, FlatList, FlatListProps, Keyboard, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import React, { RefObject, useEffect, useRef, useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { ChatMessageType, ChatRoomType } from '../../helper/types'
 import useActionCable from '../../hooks/useActionCable';
@@ -7,7 +7,7 @@ import useChannel from '../../hooks/useChannel';
 
 const CustomerToEmployeeChat = ({ navigation, route }: any) => {
     const { BaseURL, WSBaseURL } = useAuth()
-
+    let flatListRef = useRef<FlatList>(null);
     const { actionCable } = useActionCable( WSBaseURL + "/cable")
     const { subscribe, unsubscribe, send } = useChannel(actionCable)
 
@@ -53,6 +53,7 @@ const CustomerToEmployeeChat = ({ navigation, route }: any) => {
                 else if (receivedData.action === "create_message") {
                     const receivedMessageData = receivedData.data.message;
                     setMessages((currentData: any[]) => [...currentData, receivedMessageData]);
+                    flatListRef.current?.scrollToEnd({ animated: true })
                 }
                 else {
                     console.log("swr", receivedData)
@@ -63,6 +64,7 @@ const CustomerToEmployeeChat = ({ navigation, route }: any) => {
             },
             connected: function (): void {
                 console.log("connected")
+                flatListRef.current?.scrollToEnd({ animated: true })
             },
             disconnected: function (): void {
                 console.log("disconnected")
@@ -144,8 +146,8 @@ const CustomerToEmployeeChat = ({ navigation, route }: any) => {
                 <Text>Room name: {route.params.item.name} | Room id: {route.params.item.id}</Text>
                 <Text>{`You are chatting with employee id ${route.params.item.employee_id}`}</Text>
             </View>
-            <View>
-                <FlatList data={messages} renderItem={({ item }) => renderMessages(item)}
+            <View style={{ flex: 0.8 }}>
+                <FlatList ref={flatListRef} data={messages} renderItem={({ item }) => renderMessages(item)}
                 keyExtractor={(item) => item.id.toString()} 
                 ListEmptyComponent={loading ? <ActivityIndicator /> : <Text style={{ textAlign: 'center'}}>messages not found</Text>} />
             </View>

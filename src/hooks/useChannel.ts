@@ -2,7 +2,9 @@ import { ChannelNameWithParams, Consumer } from '@rails/actioncable';
 import React, { useState, useEffect, useRef } from 'react'
 
 // Needed for @rails/actioncable
+// @ts-ignore
 global.addEventListener = () => {};
+// @ts-ignore
 global.removeEventListener = () => {};
 
 export default function useChannel(actionCable: Consumer | ChannelNameWithParams) {
@@ -22,7 +24,7 @@ export default function useChannel(actionCable: Consumer | ChannelNameWithParams
         if (callbacks.initialized) callbacks.initialized()
       },
       connected: () => {
-        console.log('useChannel - INFO: Connected to ' + data.channel)
+        console.log('useChannel - INFO: Connected to ' + data)
         setConnected(true)
         if (callbacks.connected) callbacks.connected()
       },

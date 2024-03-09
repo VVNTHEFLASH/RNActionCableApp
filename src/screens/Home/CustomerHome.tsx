@@ -4,17 +4,56 @@ import { ChatRoomType, ChatRoomsType } from '../../helper/types'
 import { useAuth } from '../../context/AuthContext'
 import AsyncStorageHelper, { StorageKeys } from '../../helper/utilities';
 import { DecodeResponse, decode } from "react-native-pure-jwt";
+import useActionCable from '../../hooks/useActionCable';
+import useChannel from '../../hooks/useChannel';
 
 const CustomerHome = ({ navigation, route }: any) => {
-    const { BaseURL, signOut } = useAuth()
+    const { BaseURL, signOut, WSBaseURL } = useAuth()
     const [data, setData] = useState<ChatRoomsType>([])
     const [loading, setLoading] = useState(false)
+
+    const { actionCable } = useActionCable(WSBaseURL + "/cable")
+    const { subscribe, unsubscribe, send } = useChannel(actionCable)
+
+    const channelSubscribe = (channel_name: string, params: any = {}) => {
+        subscribe({ channel: channel_name, ...params }, {
+            received: (x) => {
+                const receivedData = x;
+                if (receivedData.user_type === "employee") {
+                    setData((currentData) => currentData.map((item) => {
+                        if (item.employee_id === receivedData.user_id) {
+                            return { ...item, isOnline: receivedData.online };
+                        } else {
+                            return item;
+                        }
+                    }));
+                    console.log(receivedData, "RECEIVED DATA OF EMPLOYEE")
+
+                }
+                else {
+                    console.log("Customer Home")
+                }
+            },
+            initialized: function (): void {
+                console.log("INIT")
+            },
+            connected: function (): void {
+                console.log("connected")
+            },
+            disconnected: function (): void {
+                console.log("disconnected")
+            }
+        })
+    }
+
     const renderChatRoomListItems = (item: ChatRoomType) => {
+
         return (
             <TouchableOpacity style={styles.button} onPress={() => {
                 navigation.navigate("CustomerToEmployeeChat", { item })
             }}>
-                <Text style={styles.text}>{item.id} {item.name}</Text>
+                <Text style={styles.text}>{item.id} {item.name} Employee</Text>
+                {/* <Text style={[styles.text]}>{item.isOnline ? "Online" : "Offline"}</Text> */}
             </TouchableOpacity>
         )
     }
@@ -30,7 +69,18 @@ const CustomerHome = ({ navigation, route }: any) => {
             const responseJson = await response.json();
 
             if (responseJson) {
-                setData(responseJson)
+                const responseData: ChatRoomsType = responseJson
+                setData(responseData)
+                // responseData.forEach((item) => {
+                //     channelSubscribe("PresenceChannel", {
+                //         user_type: "employee",
+                //         user_id: item.employee_id,
+                //     })
+                //     channelSubscribe("PresenceChannel", {
+                //         user_type: "customer",
+                //         user_id: item.customer_id,
+                //     })
+                // })
             }
             else {
                 Alert.alert("Something went wrong", JSON.stringify(responseJson))
@@ -47,6 +97,9 @@ const CustomerHome = ({ navigation, route }: any) => {
 
     useEffect(() => {
         fetchChatRoomsByUserIdAndType()
+        return () => {
+            unsubscribe()
+        }
     }, [])
 
     return (
@@ -75,6 +128,7 @@ const CustomerHome = ({ navigation, route }: any) => {
             }}>
                 <Text style={[styles.text, {}]}>Chat Rooms</Text>
                 <FlatList data={data}
+                    extraData={data}
                     renderItem={({ item }) => renderChatRoomListItems(item)}
                     keyExtractor={(item) => item.id.toString()}
                     ItemSeparatorComponent={() => <View style={{ height: 10 }} />}

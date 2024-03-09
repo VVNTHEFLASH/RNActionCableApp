@@ -5,6 +5,7 @@ export interface ChatRoomType {
     "customer_id": number
     "created_at": string
     "updated_at": string
+    "isOnline": boolean | undefined
 }
 
 export type ChatRoomsType = ChatRoomType[]

@@ -14,6 +14,8 @@ const CustomerToEmployeeChat = ({ navigation, route }: any) => {
     const [messages, setMessages] = useState<ChatMessageType[]>([])
     const [loading, setLoading] = useState(false)
     const [message, setMessage] = useState("")
+    const [isOnline, setIsOnline] = useState(false)
+
     const fetchMessagesByChatId = async (id: number) => {
         try {
             setLoading(true)
@@ -59,6 +61,26 @@ const CustomerToEmployeeChat = ({ navigation, route }: any) => {
                     setMessages((currentData: any[]) => [...currentData, receivedMessageData]);
                     flatListRef.current?.scrollToEnd({ animated: true })
                 }
+                else if(receivedData.action === "Online") {
+                    if(receivedData.employee_data) {
+                        // Alert.alert("Employee is", JSON.stringify(receivedData))
+                        const online = receivedData.employee_data.online;
+                        setIsOnline(online)
+                    }
+                    else {
+                        return
+                    }
+                }
+                else if(receivedData.action === "Offline") {
+                    if(receivedData.employee_data) {
+                        // Alert.alert("Employee is", JSON.stringify(receivedData))
+                        const online = receivedData.employee_data.online;
+                        setIsOnline(online)
+                    }
+                    else {
+                        return
+                    }
+                }
                 else {
                     console.log("swr", receivedData)
                 }
@@ -76,6 +98,12 @@ const CustomerToEmployeeChat = ({ navigation, route }: any) => {
     }
     useEffect(() => {
         fetchMessagesByChatId(route.params.item.id)
+        channelSubscribe("PresenceChannel", {
+            current_user_type: "customer",
+            current_user_id: route.params.item.customer_id,
+            request_user_type: "employee",
+            request_user_id: route.params.item.employee_id,
+        })
         channelSubscribe("MessagesChannel", { chat_room_id: route.params.item.id })
         return () => {
             unsubscribe()
@@ -149,6 +177,7 @@ const CustomerToEmployeeChat = ({ navigation, route }: any) => {
                 <Text>Customer To Employee Chat</Text>
                 <Text>Room name: {route.params.item.name} | Room id: {route.params.item.id}</Text>
                 <Text>{`You are chatting with employee id ${route.params.item.employee_id}`}</Text>
+                <Text>{`Customer is ${isOnline ? "Online" : "Offline"}`}</Text>
             </View>
             <View style={{ flex: 0.8 }}>
                 <FlatList ref={flatListRef} data={messages} renderItem={({ item }) => renderMessages(item)}

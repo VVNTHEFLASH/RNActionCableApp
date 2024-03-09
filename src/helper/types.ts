@@ -20,3 +20,12 @@ export interface ChatMessageType {
     "updated_at": symbol
     "sender_type": null | 'customer' | 'employee'
 }
+
+export interface UserDataType {
+    "id": number
+    "name": string
+    "email": string
+    "created_at": string
+    "updated_at": string
+    "online": boolean
+}

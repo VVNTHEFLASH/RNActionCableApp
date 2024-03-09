@@ -1,4 +1,4 @@
-import { ActivityIndicator, Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Alert, Button, FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { ChatRoomType, ChatRoomsType } from '../../helper/types'
 import { useAuth } from '../../context/AuthContext'
@@ -63,24 +63,14 @@ const CustomerHome = ({ navigation, route }: any) => {
             setLoading(true)
             const token = await AsyncStorageHelper.getValue(StorageKeys.customerToken);
             const decodedToken: DecodeResponse | any = await decode(token, "HS256", { skipValidation: true })
-            console.log(decodedToken)
+            // console.log(decodedToken)
             const customer_id = decodedToken.payload.customer_id;
             const response = await fetch(`${BaseURL}/employees/${customer_id}/chat_rooms`);
             const responseJson = await response.json();
 
-            if (responseJson) {
-                const responseData: ChatRoomsType = responseJson
+            if (responseJson && responseJson.data) {
+                const responseData: ChatRoomsType = responseJson.data;
                 setData(responseData)
-                // responseData.forEach((item) => {
-                //     channelSubscribe("PresenceChannel", {
-                //         user_type: "employee",
-                //         user_id: item.employee_id,
-                //     })
-                //     channelSubscribe("PresenceChannel", {
-                //         user_type: "customer",
-                //         user_id: item.customer_id,
-                //     })
-                // })
             }
             else {
                 Alert.alert("Something went wrong", JSON.stringify(responseJson))
@@ -103,38 +93,53 @@ const CustomerHome = ({ navigation, route }: any) => {
     }, [])
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             <View style={{
-                flex: 0.1,
-                flexDirection: 'row',
-                justifyContent: 'space-around',
-                alignItems: 'center'
+                flex: 1
             }}>
-                <View>
-                    <Text style={styles.text}>Who logged in</Text>
-                    <Text style={styles.text}>Customer</Text>
+                <View style={{
+                    flex: 0.1,
+                    flexDirection: 'row',
+                    justifyContent: 'space-around',
+                    alignItems: 'center'
+                }}>
+                    <View>
+                        <Text style={styles.text}>Who logged in</Text>
+                        <Text style={styles.text}>Customer</Text>
+                    </View>
+                    <TouchableOpacity style={{
+                        backgroundColor: "#f06a1d",
+                        width: 150,
+                        padding: 5,
+                        borderRadius: 6
+                    }} onPress={() => signOut({ navigation })}>
+                        <Text style={styles.text}>Logout</Text>
+                    </TouchableOpacity>
                 </View>
-                <TouchableOpacity style={{
-                    backgroundColor: "#f06a1d",
-                    width: 150,
-                    padding: 5,
-                    borderRadius: 6
-                }} onPress={() => signOut({ navigation })}>
-                    <Text style={styles.text}>Logout</Text>
-                </TouchableOpacity>
+                <View style={{
+                    flex: 0.9,
+                }}>
+                    <Text style={[styles.text, {
+                        fontSize: 20,
+                        fontWeight: '800'
+                    }]}>Chat Rooms</Text>
+                    <FlatList data={data}
+                        extraData={data}
+                        renderItem={({ item }) => renderChatRoomListItems(item)}
+                        keyExtractor={(item) => item.id.toString()}
+                        ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+                        ListEmptyComponent={loading ? <ActivityIndicator /> : <Text style={styles.text}>Chat room not found</Text>} />
+                </View>
             </View>
-            <View style={{
-                flex: 0.9,
-            }}>
-                <Text style={[styles.text, {}]}>Chat Rooms</Text>
-                <FlatList data={data}
-                    extraData={data}
-                    renderItem={({ item }) => renderChatRoomListItems(item)}
-                    keyExtractor={(item) => item.id.toString()}
-                    ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
-                    ListEmptyComponent={loading ? <ActivityIndicator /> : <Text>Chat room not found</Text>} />
+            <View>
+                <Button title='Create chat room' onPress={async () => {
+                    const token = await AsyncStorageHelper.getValue(StorageKeys.customerToken);
+                    const decodedToken: DecodeResponse | any = await decode(token, "HS256", { skipValidation: true })
+                    console.log(decodedToken)
+                    navigation.navigate("CreateChatRoom", { payload: decodedToken.payload })
+                }} />
             </View>
-        </View>
+        </SafeAreaView>
     )
 }
 

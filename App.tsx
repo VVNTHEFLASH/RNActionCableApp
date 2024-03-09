@@ -14,22 +14,30 @@ import CustomerHome from './src/screens/Home/CustomerHome';
 import EmployeeHome from './src/screens/Home/EmployeeHome';
 import EmployeeToCustomerChat from './src/screens/Chat/EmployeeToCustomerChat';
 import CustomerToEmployeeChat from './src/screens/Chat/CustomerToEmployeeChat';
+import CreateChatRoom from './src/screens/CreateChatRoom/CreateChatRoom';
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
 
   const EmployeeRoute = () => (
-    <Stack.Navigator>
+    <Stack.Navigator screenOptions={{
+      header: () => null,
+      animation: 'simple_push'
+    }}>
       <Stack.Screen name="Home" component={EmployeeHome} />
       <Stack.Screen name="EmployeeToCustomerChat" component={EmployeeToCustomerChat} />
+      <Stack.Screen name="CreateChatRoom" component={CreateChatRoom} />
     </Stack.Navigator>
   );
 
   const CustomerRoute = () => (
-    <Stack.Navigator>
+    <Stack.Navigator screenOptions={{
+      header: () => null
+    }}>
       <Stack.Screen name="Home" component={CustomerHome} />
       <Stack.Screen name="CustomerToEmployeeChat" component={CustomerToEmployeeChat} />
+      <Stack.Screen name="CreateChatRoom" component={CreateChatRoom} />
     </Stack.Navigator>
   );
 

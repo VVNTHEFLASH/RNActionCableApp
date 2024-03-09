@@ -1,6 +1,6 @@
 import { ActivityIndicator, Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native'
 import React, { useState } from 'react'
-import { useAuth } from '../../context/AuthContext'
+import { UserType, useAuth } from '../../context/AuthContext'
 const Login = ({ navigation, route }: any) => {
 
     const [email, setEmail] = useState("");
@@ -9,12 +9,13 @@ const Login = ({ navigation, route }: any) => {
 
     const onPressLoginButton = async () => {
         try {
+            const type = route.params.type;
             const userData = {
                 email,
                 password,
-                type: route.params.type
+                type
             }
-            console.log(userData)
+            // console.log(userData)
             await signInByType(userData, { navigation, route })
         }
         catch (err) {

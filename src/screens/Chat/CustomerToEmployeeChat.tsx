@@ -61,24 +61,14 @@ const CustomerToEmployeeChat = ({ navigation, route }: any) => {
                     setMessages((currentData: any[]) => [...currentData, receivedMessageData]);
                     flatListRef.current?.scrollToEnd({ animated: true })
                 }
-                else if(receivedData.action === "Online") {
-                    if(receivedData.employee_data) {
+                else if(receivedData.action === "Online" || receivedData.action === "Offline") {
+                    if(receivedData.employee_data && receivedData.employee_data.id === route.params.item.employee_id) {
                         // Alert.alert("Employee is", JSON.stringify(receivedData))
                         const online = receivedData.employee_data.online;
-                        setIsOnline(online)
+                        setIsOnline((prevState) => !prevState || online)
                     }
                     else {
-                        return
-                    }
-                }
-                else if(receivedData.action === "Offline") {
-                    if(receivedData.employee_data) {
-                        // Alert.alert("Employee is", JSON.stringify(receivedData))
-                        const online = receivedData.employee_data.online;
-                        setIsOnline(online)
-                    }
-                    else {
-                        return
+                        // todo
                     }
                 }
                 else {

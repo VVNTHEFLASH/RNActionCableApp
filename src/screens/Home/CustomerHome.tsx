@@ -65,7 +65,7 @@ const CustomerHome = ({ navigation, route }: any) => {
             const decodedToken: DecodeResponse | any = await decode(token, "HS256", { skipValidation: true })
             // console.log(decodedToken)
             const customer_id = decodedToken.payload.customer_id;
-            const response = await fetch(`${BaseURL}/employees/${customer_id}/chat_rooms`);
+            const response = await fetch(`${BaseURL}/customers/${customer_id}/chat_rooms`);
             const responseJson = await response.json();
 
             if (responseJson && responseJson.data) {
@@ -85,12 +85,27 @@ const CustomerHome = ({ navigation, route }: any) => {
         }
     }
 
+    const subscribeToPublicChannel = async () => {
+        const token = await AsyncStorageHelper.getValue(StorageKeys.customerToken);
+        const decodedToken: DecodeResponse | any = await decode(token, "HS256", { skipValidation: true })
+        console.log(decodedToken)
+        channelSubscribe("PublicChannel", {
+            current_user_id: decodedToken.payload.customer_id,
+            request_user_type: "employee"
+        })
+    }
+
     useEffect(() => {
-        fetchChatRoomsByUserIdAndType()
+        const unsubscribeFocus = navigation.addListener('focus', () => {
+            console.log("Customer focused")
+            fetchChatRoomsByUserIdAndType()
+            subscribeToPublicChannel()
+        });
         return () => {
+            unsubscribeFocus()
             unsubscribe()
         }
-    }, [])
+    }, [navigation])
 
     return (
         <SafeAreaView style={styles.container}>

@@ -62,7 +62,7 @@ const EmployeeHome = ({ navigation, route }: any) => {
             const decodedToken: DecodeResponse | any = await decode(token, "HS256", { skipValidation: true })
             // console.log(decodedToken)
             const employee_id = decodedToken.payload.employee_id;
-            const response = await fetch(`${BaseURL}/customers/${employee_id}/chat_rooms`);
+            const response = await fetch(`${BaseURL}/employees/${employee_id}/chat_rooms`);
             const responseJson = await response.json();
 
             if (responseJson && responseJson.data) {
@@ -82,13 +82,27 @@ const EmployeeHome = ({ navigation, route }: any) => {
         }
     }
 
-    useEffect(() => {
-        fetchChatRoomsByUserIdAndType()
 
+    const subscribeToPublicChannel = async () => {
+        const token = await AsyncStorageHelper.getValue(StorageKeys.employeeToken);
+        const decodedToken: DecodeResponse | any = await decode(token, "HS256", { skipValidation: true })
+        console.log(decodedToken)
+        channelSubscribe("PublicChannel", {
+            current_user_id: decodedToken.payload.employee_id,
+            request_user_type: "customer"
+        })
+    }
+    useEffect(() => {
+        const unsubscribeFocus = navigation.addListener('focus', () => {
+            console.log("Employee focused")
+            fetchChatRoomsByUserIdAndType()
+            subscribeToPublicChannel()
+        });
         return () => {
             unsubscribe()
+            unsubscribeFocus()
         }
-    }, [])
+    }, [navigation])
 
 
     return (

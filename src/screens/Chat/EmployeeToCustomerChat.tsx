@@ -49,7 +49,7 @@ const EmployeeToCustomerChat = ({ navigation, route }: any) => {
         }
     }
 
-    const channelSubscribe = (channel_name: string, params: any = {}) => {
+    const  channelSubscribe = (channel_name: string, params: any = {}) => {
         subscribe({ channel: channel_name, ...params }, {
             received: (x) => {
                 console.log(x, "RECEIVED DATA")
@@ -64,24 +64,14 @@ const EmployeeToCustomerChat = ({ navigation, route }: any) => {
                     setMessages((currentData: any[]) => [...currentData, receivedMessageData]);
                     flatListRef.current?.scrollToEnd({ animated: true })
                 }
-                else if(receivedData.action === "Online") {
-                    if(receivedData.customer_data) {
+                else if(receivedData.action === "Online" || receivedData.action === "Offline") {
+                    if(receivedData.customer_data && receivedData.customer_data.id === route.params.item.customer_id) {
                         // Alert.alert("Customer is", JSON.stringify(receivedData))
                         const online = receivedData.customer_data.online;
                         setIsOnline(online)
                     }
                     else {
-                        return
-                    }
-                }
-                else if(receivedData.action === "Offline") {
-                    if(receivedData.customer_data) {
-                        // Alert.alert("Customer is", JSON.stringify(receivedData))
-                        const online = receivedData.customer_data.online;
-                        setIsOnline(online)
-                    }
-                    else {
-                        return
+                        // 
                     }
                 }
                 else {
@@ -177,9 +167,10 @@ const EmployeeToCustomerChat = ({ navigation, route }: any) => {
         }
     }
     return (
+        
         <View style={{ flex: 1, justifyContent: 'space-between' }}>
             <View>
-                <Text>Customer To Employee Chat</Text>
+                <Text>Employee to Customer Chat</Text>
                 <Text>Room name: {route.params.item.name} | Room id: {route.params.item.id}</Text>
                 <Text>{`You are chatting with employee id ${route.params.item.employee_id}`}</Text>
                 <Text>{`Employee is ${isOnline ? "Online" : "Offline"}`}</Text>

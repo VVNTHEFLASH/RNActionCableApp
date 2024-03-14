@@ -65,7 +65,7 @@ const CustomerToEmployeeChat = ({ navigation, route }: any) => {
                     if(receivedData.employee_data && receivedData.employee_data.id === route.params.item.employee_id) {
                         // Alert.alert("Employee is", JSON.stringify(receivedData))
                         const online = receivedData.employee_data.online;
-                        setIsOnline((prevState) => !prevState || online)
+                        setIsOnline(online)
                     }
                     else {
                         // todo

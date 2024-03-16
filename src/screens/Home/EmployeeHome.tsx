@@ -47,7 +47,7 @@ const EmployeeHome = ({ navigation, route }: any) => {
                 console.log("INIT")
             },
             connected: function (): void {
-                console.log("connected")
+                console.log("connected", channel_name, params)
             },
             disconnected: function (): void {
                 console.log("disconnected")
@@ -88,15 +88,18 @@ const EmployeeHome = ({ navigation, route }: any) => {
         const decodedToken: DecodeResponse | any = await decode(token, "HS256", { skipValidation: true })
         console.log(decodedToken)
         channelSubscribe("PublicChannel", {
+            current_user_type: "employee",
             current_user_id: decodedToken.payload.employee_id,
             request_user_type: "customer"
         })
     }
     useEffect(() => {
+        fetchChatRoomsByUserIdAndType()
         const unsubscribeFocus = navigation.addListener('focus', () => {
             console.log("Employee focused")
-            fetchChatRoomsByUserIdAndType()
-            subscribeToPublicChannel()
+            setTimeout(() => {
+                subscribeToPublicChannel()
+            }, 5000)
         });
         return () => {
             unsubscribe()
